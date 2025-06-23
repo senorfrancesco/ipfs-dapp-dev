@@ -12,5 +12,5 @@ REPORT_GAS=true npx hardhat test
 
 npx hardhat node
 npx hardhat compile
-npx hardhat run scripts/deploy.js --network private
+npx hardhat run scripts/deploy.js --network hardhat
 ```
