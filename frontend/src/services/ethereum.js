@@ -2,31 +2,31 @@ import { ethers } from 'ethers';
 
 const contractABI = [
   {
-    inputs: [{ name: 'ipfsHash', type: 'string' }],
+    anonymous: false,
+    inputs: [
+      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
+      { indexed: false, internalType: 'string', name: 'ipfsHash', type: 'string' },
+    ],
+    name: 'FileAdded',
+    type: 'event',
+  },
+  {
+    inputs: [{ internalType: 'string', name: 'ipfsHash', type: 'string' }],
     name: 'addFile',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ name: 'user', type: 'address' }],
+    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
     name: 'getFiles',
-    outputs: [{ name: 'output', type: 'string[]' }],
+    outputs: [{ internalType: 'string[]', name: '', type: 'string[]' }],
     stateMutability: 'view',
     type: 'function',
   },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, name: 'user', type: 'address' },
-      { name: 'ipfsHash', type: 'string' },
-    ],
-    name: 'FileAdded',
-    type: 'event',
-  },
 ];
 
-const CONTRACT_ADDRESS = '0x0165878A594ca255338adfa4d48449f69242Eb8F'; // Замените на ваш адрес контракта
+const CONTRACT_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'; // Новый адрес
 
 export const getContract = async () => {
   if (!window.ethereum) {
@@ -34,8 +34,10 @@ export const getContract = async () => {
   }
   try {
     console.log('Requesting MetaMask accounts...');
-    // Запрашиваем аккаунты через window.ethereum
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (!accounts.length) {
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+    }
     console.log('Connected accounts:', accounts);
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
@@ -52,17 +54,27 @@ export const getContract = async () => {
 export const addFileToContract = async (ipfsHash) => {
   console.log('Adding file to contract with IPFS hash:', ipfsHash);
   const contract = await getContract();
-  const tx = await contract.addFile(ipfsHash);
-  console.log('Transaction sent:', tx.hash);
-  await tx.wait();
-  console.log('Transaction confirmed:', tx.hash);
-  return tx;
+  try {
+    const tx = await contract.addFile(ipfsHash);
+    console.log('Transaction sent:', tx.hash);
+    await tx.wait();
+    console.log('Transaction confirmed:', tx.hash);
+    return tx;
+  } catch (error) {
+    console.error('Error sending transaction:', error);
+    throw error;
+  }
 };
 
 export const getUserFiles = async (userAddress) => {
   console.log('Fetching files for address:', userAddress);
   const contract = await getContract();
-  const files = await contract.getFiles(userAddress);
-  console.log('Files retrieved:', files);
-  return files;
+  try {
+    const files = await contract.getFiles(userAddress);
+    console.log('Files retrieved:', files);
+    return files;
+  } catch (error) {
+    console.error('Error fetching files:', error);
+    throw error;
+  }
 };
