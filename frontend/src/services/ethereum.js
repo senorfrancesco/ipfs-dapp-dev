@@ -2,31 +2,45 @@ import { ethers } from 'ethers';
 
 const contractABI = [
   {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
-      { indexed: false, internalType: 'string', name: 'ipfsHash', type: 'string' },
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
+      { "indexed": false, "internalType": "string", "name": "ipfsHash", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "fileName", "type": "string" }
     ],
-    name: 'FileAdded',
-    type: 'event',
+    "name": "FileAdded",
+    "type": "event"
   },
   {
-    inputs: [{ internalType: 'string', name: 'ipfsHash', type: 'string' }],
-    name: 'addFile',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    "inputs": [
+      { "internalType": "string", "name": "ipfsHash", "type": "string" },
+      { "internalType": "string", "name": "fileName", "type": "string" }
+    ],
+    "name": "addFile",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
-    name: 'getFiles',
-    outputs: [{ internalType: 'string[]', name: '', type: 'string[]' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
+    "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
+    "name": "getFiles",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "string", "name": "ipfsHash", "type": "string" },
+          { "internalType": "string", "name": "fileName", "type": "string" }
+        ],
+        "internalType": "struct FileStorage.File[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ];
 
-const CONTRACT_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'; // Новый адрес
+const CONTRACT_ADDRESS = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707'; // Новый адрес
 
 export const getContract = async () => {
   if (!window.ethereum) {
@@ -51,11 +65,11 @@ export const getContract = async () => {
   }
 };
 
-export const addFileToContract = async (ipfsHash) => {
-  console.log('Adding file to contract with IPFS hash:', ipfsHash);
+export const addFileToContract = async (ipfsHash, fileName) => {
+  console.log('Adding file to contract with IPFS hash:', ipfsHash, 'and fileName:', fileName);
   const contract = await getContract();
   try {
-    const tx = await contract.addFile(ipfsHash);
+    const tx = await contract.addFile(ipfsHash, fileName);
     console.log('Transaction sent:', tx.hash);
     await tx.wait();
     console.log('Transaction confirmed:', tx.hash);

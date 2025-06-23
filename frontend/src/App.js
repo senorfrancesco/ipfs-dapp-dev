@@ -4,31 +4,45 @@ import FileList from './components/FileList';
 import './App.css';
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'; // Новый адрес
+const CONTRACT_ADDRESS = '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707'; // Новый адрес
 const contractABI = [
   {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: 'address', name: 'user', type: 'address' },
-      { indexed: false, internalType: 'string', name: 'ipfsHash', type: 'string' },
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
+      { "indexed": false, "internalType": "string", "name": "ipfsHash", "type": "string" },
+      { "indexed": false, "internalType": "string", "name": "fileName", "type": "string" }
     ],
-    name: 'FileAdded',
-    type: 'event',
+    "name": "FileAdded",
+    "type": "event"
   },
   {
-    inputs: [{ internalType: 'string', name: 'ipfsHash', type: 'string' }],
-    name: 'addFile',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    "inputs": [
+      { "internalType": "string", "name": "ipfsHash", "type": "string" },
+      { "internalType": "string", "name": "fileName", "type": "string" }
+    ],
+    "name": "addFile",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
-    name: 'getFiles',
-    outputs: [{ internalType: 'string[]', name: '', type: 'string[]' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
+    "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
+    "name": "getFiles",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "string", "name": "ipfsHash", "type": "string" },
+          { "internalType": "string", "name": "fileName", "type": "string" }
+        ],
+        "internalType": "struct FileStorage.File[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ];
 
 const App = () => {
@@ -71,8 +85,8 @@ const App = () => {
 
         const provider = new ethers.BrowserProvider(window.ethereum);
         const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider);
-        contract.on('FileAdded', (user, ipfsHash) => {
-          console.log(`FileAdded event: User=${user}, IPFS Hash=${ipfsHash}`);
+        contract.on('FileAdded', (user, ipfsHash, fileName) => {
+          console.log(`FileAdded event: User=${user}, IPFS Hash=${ipfsHash}, FileName=${fileName}`);
           if (user.toLowerCase() === userAddress?.toLowerCase()) {
             setRefresh((prev) => prev + 1);
           }

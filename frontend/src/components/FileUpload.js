@@ -4,43 +4,34 @@ import { addFileToContract } from '../services/ethereum';
 
 const FileUpload = ({ onFileUploaded }) => {
   const [file, setFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
 
-  const handleFileChange = (e) => {
-    console.log('File selected:', e.target.files[0]);
-    setFile(e.target.files[0]);
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
   };
 
   const handleUpload = async () => {
     if (!file) {
-      console.log('No file selected');
+      alert('Please select a file to upload.');
       return;
     }
 
-    console.log('Starting file upload...');
-    setUploading(true);
     try {
-      console.log('Uploading to IPFS...');
       const ipfsHash = await uploadFileToIPFS(file);
-      console.log('IPFS Hash:', ipfsHash);
-      console.log('Adding to contract...');
-      const tx = await addFileToContract(ipfsHash);
-      console.log('Transaction:', tx);
+      await addFileToContract(ipfsHash, file.name);
+      alert('File uploaded successfully!');
       onFileUploaded();
-      setFile(null);
     } catch (error) {
-      console.error('Error during upload:', error);
-    } finally {
-      setUploading(false);
-      console.log('Upload process finished');
+      console.error('Error uploading file:', error);
+      alert('Failed to upload file. Check console for details.');
     }
   };
 
   return (
     <div>
+      <h3>Upload File</h3>
       <input type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload} disabled={!file || uploading}>
-        {uploading ? 'Uploading...' : 'Upload File'}
+      <button onClick={handleUpload} disabled={!file}>
+        Upload to IPFS
       </button>
     </div>
   );

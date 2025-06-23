@@ -20,15 +20,29 @@ const FileList = ({ userAddress }) => {
     }
   }, [userAddress]);
 
-  const handleDownload = async (ipfsHash) => {
+  const getMimeType = (fileName) => {
+    const extension = fileName.split('.').pop().toLowerCase();
+    const mimeTypes = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      pdf: 'application/pdf',
+      txt: 'text/plain',
+    };
+    return mimeTypes[extension] || 'application/octet-stream';
+  };
+
+  const handleDownload = async (ipfsHash, fileName) => {
     try {
-      console.log(`Downloading file with CID: ${ipfsHash}`);
+      console.log(`Downloading file with CID: ${ipfsHash}, Name: ${fileName}`);
       const fileContent = await getFileFromIPFS(ipfsHash);
-      const blob = new Blob([fileContent]);
+      const mimeType = getMimeType(fileName);
+      const blob = new Blob([fileContent], { type: mimeType });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = ipfsHash;
+      link.download = fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -46,17 +60,24 @@ const FileList = ({ userAddress }) => {
         <p>No files uploaded yet.</p>
       ) : (
         <ul>
-          {files.map((ipfsHash, index) => (
+          {files.map((file, index) => (
             <li key={index}>
               <a
-                href={`http://127.0.0.1:8080/ipfs/${ipfsHash}`}
+                href={`http://127.0.0.1:8080/ipfs/${file.ipfsHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {ipfsHash}
+                {file.fileName}
               </a>
+              {file.fileName.match(/\.(jpg|jpeg|png|gif)$/i) && (
+                <img
+                  src={`http://127.0.0.1:8080/ipfs/${file.ipfsHash}`}
+                  alt={file.fileName}
+                  style={{ maxWidth: '100px', marginLeft: '10px' }}
+                />
+              )}
               <button
-                onClick={() => handleDownload(ipfsHash)}
+                onClick={() => handleDownload(file.ipfsHash, file.fileName)}
                 style={{ marginLeft: '10px' }}
               >
                 Download
