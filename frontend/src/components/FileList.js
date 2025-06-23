@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { getUserFiles } from '../services/ethereum';
 import { getFileFromIPFS } from '../services/ipfs';
 
-const FileList = ({ userAddress }) => {
+const FileList = ({ userAddress, privateKey = null, nodePort = 8545, useMetaMask = false }) => {
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        console.log('Fetching files for:', userAddress);
-        const userFiles = await getUserFiles(userAddress);
+        console.log('Fetching files for:', userAddress, 'with nodePort:', nodePort);
+        const userFiles = await getUserFiles(userAddress, nodePort, privateKey, useMetaMask);
+        console.log('Fetched files:', userFiles);
         setFiles(userFiles);
       } catch (error) {
         console.error('Error fetching files:', error);
@@ -18,7 +19,7 @@ const FileList = ({ userAddress }) => {
     if (userAddress) {
       fetchFiles();
     }
-  }, [userAddress]);
+  }, [userAddress, nodePort, privateKey, useMetaMask]);
 
   const getMimeType = (fileName) => {
     const extension = fileName.split('.').pop().toLowerCase();

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { uploadFileToIPFS } from '../services/ipfs';
 import { addFileToContract } from '../services/ethereum';
 
-const FileUpload = ({ onFileUploaded }) => {
+const FileUpload = ({ onFileUploaded, nodePort = 8545, privateKey = null, useMetaMask = false }) => {
   const [file, setFile] = useState(null);
 
   const handleFileChange = (event) => {
@@ -14,15 +14,14 @@ const FileUpload = ({ onFileUploaded }) => {
       alert('Please select a file to upload.');
       return;
     }
-
     try {
       const ipfsHash = await uploadFileToIPFS(file);
-      await addFileToContract(ipfsHash, file.name);
+      await addFileToContract(ipfsHash, file.name, nodePort, privateKey, useMetaMask);
       alert('File uploaded successfully!');
       onFileUploaded();
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('Failed to upload file. Check console for details.');
+      alert('Failed to upload file.');
     }
   };
 

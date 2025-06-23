@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  node1:
+    build: .
+    ports:
+      - "8545:8545"
+    environment:
+      - HARDHAT_NETWORK=hardhat
+    command: npx hardhat node --hostname 0.0.0.0 --port 8545
+
+  node2:
+    build: .
+    ports:
+      - "8546:8545"
+    environment:
+      - HARDHAT_NETWORK=hardhat
+    command: npx hardhat node --hostname 0.0.0.0 --port 8545 --fork http://node1:8545
+    depends_on:
+      - node1
+networks:
+  default:
+    driver: bridge

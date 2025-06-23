@@ -25,7 +25,6 @@ export const getFileFromIPFS = async (cid) => {
       chunks.push(chunk);
     }
     console.log('File retrieved from IPFS:', cid);
-    // Объединяем chunks в Uint8Array
     const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
     const result = new Uint8Array(totalLength);
     let offset = 0;
